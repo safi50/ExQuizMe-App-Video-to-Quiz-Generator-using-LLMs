@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExQuizMe</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .feedback-form {
+            display: none;
+            margin-top: 20px;
+        }
+        .feedback-form label, .feedback-form input, .feedback-form textarea {
+            margin-bottom: 10px;
+        }
+        .quiz-container {
+            margin-top: 20px;
+        }
+        .quiz-container .question {
+            margin-bottom: 15px;
+        }
+        .option {
+            cursor: pointer;
+            padding: 5px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .option.correct {
+            background-color: #d4edda; /* Green */
+        }
+        .option.incorrect {
+            background-color: #f8d7da; /* Red */
+        }
+        .option.selected-correct {
+            background-color: #007bff; /* Blue */
+            color: white;
+        }
+        .correct-answer {
+            font-weight: bold;
+            display: none;
+        }
+        #transcription {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background-color: #f8f9fa;
+        }
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #08131a;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .stylish-title {
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        .stylish-title .main-title {
+            font-size: 2.5em;
+            font-weight: 600;
+            color: #0c161d;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            /* background: linear-gradient(45deg, #3498db, #8e44ad); */
+            /* -webkit-text-fill-color: transparent; */
+            display: inline-block;
+        }
+
+        .stylish-title .subtitle {
+            display: block;
+            font-size: 1em;
+            font-weight: 300;
+            margin-top: 10px;
+            color: #34495e;
+        }
+    </style>
+    <!-- Add Poppins font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
+</head>
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <<h1 class="stylish-title">
+            <span class="main-title">ExQuizMe?</span>
+            <span class="subtitle">Upload Video for Transcription and Quiz Generation</span>
+        </h1>
+              <div class="form-group">
+            <input type="file" id="videoUpload" accept="video/*" multiple class="form-control-file">
+            <button id="uploadBtn" class="btn btn-primary mt-3">Upload Video</button>
+        </div>
+
+        <div id="transcriptionLoader" class="loader"></div>
+
+        <h2 class="mt-5">Transcription</h2>
+        <p id="transcription" class="border p-3 bg-light"></p>
+
+        <div class="form-group mt-3">
+            <label for="complexity">Choose complexity:</label>
+            <select id="complexity" class="form-control">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="advanced">Advanced</option>
+            </select>
+        </div>
+
+        <div class="form-group mt-3">
+            <label for="q_type">Choose type:</label>
+            <select id="q_type" class="form-control">
+                <option value="quiz">Quiz</option>
+                <option value="interview" selected>Interview</option>
+            </select>
+        </div>
+
+        <button id="generateQuizBtn" class="btn btn-success mt-3" style="display:none;">Generate Quiz</button>
+
+        <div id="quizLoader" class="loader"></div>
+
+        <div id="quiz" class="quiz-container mt-5"></div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const domain = '20.57.17.128';
+        const port = '5000';
+
+        // Handle video upload
+        document.getElementById('uploadBtn').addEventListener('click', function () {
+            console.log("Uploading video...");
+            const videoFiles = document.getElementById('videoUpload').files;
+            const formData = new FormData();
+            for (let i = 0; i < videoFiles.length; i++) {
+                formData.append('video', videoFiles[i]);
+            }
+
+            document.getElementById('transcriptionLoader').style.display = 'block';
+
+            fetch(`http://${domain}:${port}/transcribe_video`, {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('transcriptionLoader').style.display = 'none';
+                if (data.transcription) {
+                    document.getElementById('transcription').textContent = data.transcription;
+                    document.getElementById('generateQuizBtn').style.display = 'block';
+                } else {
+                    console.error('No transcription received:', data);
+                }
+            })
+            .catch(error => {
+                document.getElementById('transcriptionLoader').style.display = 'none';
+                console.error('Error uploading video:', error);
+            });
+        });
+
+        // Handle quiz generation
+        document.getElementById('generateQuizBtn').addEventListener('click', function () {
+            console.log("Generating quiz...");
+            const transcription = document.getElementById('transcription').textContent;
+            const complexity = document.getElementById('complexity').value;
+            const q_type = document.getElementById('q_type').value;
+
+            document.getElementById('quizLoader').style.display = 'block';
+
+            fetch(`http://${domain}:${port}/generate_quiz`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ transcription, complexity, q_type })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('quizLoader').style.display = 'none';
+                try {
+                    const quizData = data.quiz;
+                    if (Array.isArray(quizData)) {
+                        const quizContainer = document.getElementById('quiz');
+                        quizContainer.innerHTML = '';  // Clear previous quiz
+
+                        quizData.forEach((item, index) => {
+                            const questionDiv = document.createElement('div');
+                            questionDiv.classList.add('question');
+                            questionDiv.innerHTML = `<h4>Q${index + 1}: ${item.question}</h4>`;
+
+                            item.options.forEach(option => {
+                                const optionDiv = document.createElement('div');
+                                optionDiv.classList.add('option');
+                                optionDiv.textContent = option;
+                                optionDiv.addEventListener('click', function() {
+                                    handleOptionClick(this, item.answer);
+                                });
+                                questionDiv.appendChild(optionDiv);
+                            });
+
+                            quizContainer.appendChild(questionDiv);
+                        });
+                    } else {
+                        console.error('Quiz data is not an array:', data);
+                    }
+                } catch (error) {
+                    console.error('Error processing quiz data:', error);
+                }
+            })
+            .catch(error => {
+                document.getElementById('quizLoader').style.display = 'none';
+                console.error('Error generating quiz:', error);
+            });
+        });
+
+        function handleOptionClick(optionElement, correctAnswer) {
+            const questionDiv = optionElement.closest('.question');
+            const options = questionDiv.querySelectorAll('.option');
+
+            options.forEach(option => {
+                option.classList.remove('correct', 'incorrect', 'selected-correct');
+            });
+
+            if (optionElement.textContent === correctAnswer) {
+                optionElement.classList.add('selected-correct');
+            } else {
+                optionElement.classList.add('incorrect');
+                options.forEach(option => {
+                    if (option.textContent === correctAnswer) {
+                        option.classList.add('correct');
+                    }
+                });
+            }
+        }
+    });
+    </script>
+</body>
+</html>
