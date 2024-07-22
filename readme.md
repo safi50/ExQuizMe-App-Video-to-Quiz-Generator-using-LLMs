@@ -1,4 +1,4 @@
-# ExQuizMe? App : Video to Text Conversion and Quiz Generation using Open-Source LLMs
+# ExQuizMe? App : Video to Text Conversion and Quiz Generation using LLMs
 <img width="1672" alt="Screenshot 2024-07-22 at 9 13 22 PM" src="https://github.com/user-attachments/assets/634f3908-d040-43e5-8953-e990e9d7b53c">
 
 ## Project Demo
