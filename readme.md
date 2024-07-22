@@ -86,3 +86,9 @@ This command launches the server, typically accessible at `http://127.0.0.1:5000
 You can use CLI as showcased in the videos or you can enter your token in the following codes in mixtral_wrapper.py.
 from huggingface_hub import login
 ```login(token="enter-your-token")```
+
+## Note: Virtual Machine Compute Required for Efficient Working
+- VCPU's : >16
+- RAM : >32Gb
+- GPU Required: **Yes!!!**
+- Storage Requirement: >=100Gb
