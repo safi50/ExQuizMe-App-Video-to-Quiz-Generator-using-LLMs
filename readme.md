@@ -3,6 +3,8 @@
 ## Project Demo
 https://github.com/user-attachments/assets/afdf9528-f043-46d1-9d33-3d5d250b75db
 
+## Project Architecture
+<img width="1200" alt="Screenshot 2024-07-22 at 12 58 17 PM" src="https://github.com/user-attachments/assets/30d3f9a3-7064-4766-9a97-6925bc6d143c">
 
 
 
