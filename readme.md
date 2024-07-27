@@ -9,7 +9,7 @@ https://github.com/user-attachments/assets/afdf9528-f043-46d1-9d33-3d5d250b75db
 
 
 ## Project Overview
-This project provides a Flask API for processing video files to generate text transcriptions using the Whisper model and subsequently creating quizzes with the transcriptions using Mistral-7n LLM.
+This project provides a Flask API for processing video files to generate text transcriptions using the Open AI's Speech to Text Whisper model and subsequently creating quizzes with the transcriptions using Mistral-7b LLM.
 
 In today's digital era, the abundance of educational video content presents both opportunities and challenges for learners. This AI Video Summarization and Quiz Generation Tool addresses the need for efficient educational tools by leveraging state-of-the-art Large Language Models (LLMs) to extract key concepts from educational videos, generate concise summaries, and create quizzes to reinforce learning.
 
